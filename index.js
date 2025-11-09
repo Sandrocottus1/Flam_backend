@@ -235,3 +235,27 @@ program
     }
 db.close();
 });
+
+program
+.command('config')
+.description('Get/set config')
+.argument('<action>')
+.argument('[key]')
+.argument('[value]')
+.action((action,key,value)=>{
+const db = openDB();
+if(action==='set'){
+if(!key||value===undefined){ console.error('key value required'); process.exit(1); }
+db.prepare('INSERT OR REPLACE INTO config(key,value) VALUES(?,?)').run(key,String(value));
+console.log('set',key,value);
+} else if(action==='get'){
+const rows = db.prepare('SELECT key,value FROM config').all();
+for(const r of rows) console.log(r.key, r.value);
+} else {
+console.log('unknown config action');
+}
+db.close();
+});
+
+
+program.parse(process.argv);
