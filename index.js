@@ -87,3 +87,66 @@ resolve(127);
 });
 });
 }
+
+// Worker loop (single worker process)
+async function workerLoop(){
+const db = openDB();
+const cfg = getConfig(db);
+log('worker starting');
+let shuttingDown = false;
+process.on('SIGTERM', ()=>{ log('worker SIGTERM'); shuttingDown=true; });
+process.on('SIGINT', ()=>{ log('worker SIGINT'); shuttingDown=true; });
+
+
+while(true){
+if(shuttingDown){ log('worker shutting down gracefully'); break; }
+let job = null;
+try{
+const tx = db.transaction(()=>{
+const now = Date.now();
+// select id where pending and next_run <= now
+const row = db.prepare(`SELECT id FROM jobs WHERE state='pending' AND next_run<=? ORDER BY created_at LIMIT 1`).get(now);
+if(!row) return null;
+// try to claim
+const ok = db.prepare(`UPDATE jobs SET state='processing', updated_at=? WHERE id=? AND state='pending'`).run(new Date().toISOString(), row.id);
+if(ok.changes===0) return null;
+return db.prepare('SELECT * FROM jobs WHERE id=?').get(row.id);
+});
+job = tx();
+}catch(err){
+log('claim error',err.message);
+}
+
+
+if(!job){
+// sleep a bit
+await new Promise(r=>setTimeout(r,200));
+continue;
+}
+
+
+log('processing', job.id, job.command);
+const code = await execCommand(job.command);
+const now = new Date().toISOString();
+if(code===0){
+db.prepare('UPDATE jobs SET state=?, updated_at=? WHERE id=?').run('completed', now, job.id);
+log('completed',job.id);
+} else {
+// failure: increment attempts
+const attempts = job.attempts + 1;
+const max_retries = job.max_retries;
+if(attempts>max_retries){
+db.prepare('UPDATE jobs SET state=?, attempts=?, updated_at=?, last_error=? WHERE id=?').run('dead', attempts, now, `exit(${code})`, job.id);
+log('moved to DLQ', job.id);
+} else {
+// compute backoff delay = base ^ attempts seconds
+const base = cfg.backoff_base || 2;
+const delaySec = Math.pow(base, attempts);
+const nextRun = Date.now() + Math.floor(delaySec*1000);
+db.prepare('UPDATE jobs SET attempts=?, state=?, next_run=?, updated_at=?, last_error=? WHERE id=?').run(attempts, 'pending', nextRun, now, `exit(${code})`, job.id);
+log('retry scheduled', job.id, 'in', delaySec, 's');
+}
+}
+}
+db.close();
+}
