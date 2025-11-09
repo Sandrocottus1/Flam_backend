@@ -179,3 +179,38 @@ program
         console.log('enqueued',id);
         db.close();
     })
+
+program
+    .command('worker')
+    .description('Worker management')
+    .argument('<action>')
+    .option('--count <n>','number of workers', '1')
+    .action((action,opts)=>{
+    if(action==='start'){
+        const count = Number(opts.count||1);
+        const pids = [];
+        for(let i=0;i<count;i++){
+            const child = spawn(process.execPath, [__filename, 'worker', 'run'], { stdio: 'inherit' });
+            pids.push(child.pid);
+            console.log('worker started pid=',child.pid);
+            log('started worker pid='+child.pid);
+        }
+    // persist pids
+    fs.writeFileSync(PID_FILE, JSON.stringify({pids, started_at: Date.now()}));
+    } else if(action==='stop'){
+    if(!fs.existsSync(PID_FILE)){ console.log('no pid file'); return; }
+    const data = JSON.parse(fs.readFileSync(PID_FILE,'utf8'));
+    if(!data.pids) { console.log('no pids'); return; }
+    for(const pid of data.pids){
+    try{
+    process.kill(pid,'SIGTERM');
+    console.log('sent SIGTERM to',pid);
+    }catch(e){ console.log('failed to kill',pid,e.message); }
+    }
+    fs.unlinkSync(PID_FILE);
+    } else if(action==='run'){
+    workerLoop().catch(e=>{ log('worker error',e.message); process.exit(1); });
+    } else {
+    console.log('unknown worker action');
+    }
+    });
