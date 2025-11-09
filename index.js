@@ -214,3 +214,24 @@ program
     console.log('unknown worker action');
     }
     });
+
+program
+    .command('dlq')
+    .description('DLQ operations')
+    .argument('<action>')
+    .argument('[jobId]')
+    .action((action, jobId)=>{
+    const db = openDB();
+    if(action==='list'){
+        const rows = db.prepare("SELECT * FROM jobs WHERE state='dead' ORDER BY updated_at").all();
+        for(const r of rows) console.log(r.id, r.command, 'attempts='+r.attempts, r.last_error||'');
+    } else if(action==='retry'){
+        if(!jobId){ console.error('jobId required'); process.exit(1); }
+        const now = Date.now();
+        db.prepare("UPDATE jobs SET state='pending', attempts=0, next_run=?, updated_at=? WHERE id=?").run(now, new Date().toISOString(), jobId);
+        console.log('retried',jobId);
+    } else {
+        console.log('unknown dlq action');
+    }
+db.close();
+});
