@@ -150,3 +150,32 @@ log('retry scheduled', job.id, 'in', delaySec, 's');
 }
 db.close();
 }
+//CLI commands
+
+program 
+    .name('queuectl')
+    .description('CLI background job queue controller')
+    .version('0.1.0')
+
+
+program
+    .command('enqueue')
+    .argument('<jobJson>')
+    .description('Enqueu a new job (JSON string)')
+    .action((jobJson)=>{
+
+        const db=openDB();
+        const cfg=getConfig(db);
+        let job;
+        try{job =JSON.parse(jobJson);} catch(e){console.error('Invalid JSON'); process.exit(1);}
+        const id =job.id || uuidv4();
+        const command=job.command;
+        if(!command){console.error('command required'); process.exit(1);}
+        const now =new Date().toISOString();
+        const max_retires=(job.max_retires!==undefined)?job.max_retires:cfg.default_max_retires;
+        const next_run=Date.now();
+
+        db.prepare(`INSERT INTO jobs(id,command,state,attempts,max_retries,created_at,updated_at,next_run) VALUES(?,?,?,?,?,?,?,?)`).run(id,command,'pending',0,max_retries,now,now,next_run);
+        console.log('enqueued',id);
+        db.close();
+    })
