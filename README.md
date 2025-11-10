@@ -1,4 +1,4 @@
-queuectl
+queuectl:-
 
 queuectl is a CLI-based background job queue system built in Node.js with persistent storage in SQLite. It supports:
 
