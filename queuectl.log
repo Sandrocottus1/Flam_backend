@@ -14,3 +14,12 @@
 [2025-11-10T07:41:20.298Z] processing 7e286cf1-7ff6-44c8-9541-0b48a3c8ea68 echo sleep
 [2025-11-10T07:41:20.373Z] completed 7e286cf1-7ff6-44c8-9541-0b48a3c8ea68
 [2025-11-10T07:41:22.430Z] no more jobs — exiting
+[2025-11-10T08:18:53.737Z] started worker pid=9888
+[2025-11-10T08:18:53.754Z] started worker pid=3864
+[2025-11-10T08:18:53.770Z] started worker pid=8612
+[2025-11-10T08:18:54.145Z] worker starting
+[2025-11-10T08:18:54.170Z] worker starting
+[2025-11-10T08:18:54.247Z] worker starting
+[2025-11-10T08:18:56.213Z] no more jobs — exiting
+[2025-11-10T08:18:56.247Z] no more jobs — exiting
+[2025-11-10T08:18:56.325Z] no more jobs — exiting

@@ -1,5 +1,6 @@
 
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import path from 'path';
 import { spawn } from 'child_process';
 import Database from 'better-sqlite3';
@@ -12,6 +13,8 @@ const DB_PATH = path.resolve(process.cwd(), 'queue.db');
 const PID_FILE = path.resolve(process.cwd(), 'queuectl.pids.json');
 const LOG_FILE = path.resolve(process.cwd(), 'queuectl.log');
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 function log(...args){
