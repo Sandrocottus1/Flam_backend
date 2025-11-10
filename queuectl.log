@@ -23,3 +23,12 @@
 [2025-11-10T08:18:56.213Z] no more jobs — exiting
 [2025-11-10T08:18:56.247Z] no more jobs — exiting
 [2025-11-10T08:18:56.325Z] no more jobs — exiting
+[2025-11-10T08:20:35.630Z] started worker pid=23076
+[2025-11-10T08:20:35.650Z] started worker pid=6924
+[2025-11-10T08:20:35.667Z] started worker pid=10000
+[2025-11-10T08:20:36.109Z] worker starting
+[2025-11-10T08:20:36.144Z] worker starting
+[2025-11-10T08:20:36.168Z] worker starting
+[2025-11-10T08:20:38.194Z] no more jobs — exiting
+[2025-11-10T08:20:38.209Z] no more jobs — exiting
+[2025-11-10T08:20:38.255Z] no more jobs — exiting

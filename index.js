@@ -266,6 +266,36 @@ db.close();
 });
 
 program
+  .command('status')
+  .description('Show current queue and worker status')
+  .action(() => {
+    const db = openDB();
+    const total = db.prepare("SELECT COUNT(*) AS c FROM jobs").get().c;
+    const pending = db.prepare("SELECT COUNT(*) AS c FROM jobs WHERE state='pending'").get().c;
+    const processing = db.prepare("SELECT COUNT(*) AS c FROM jobs WHERE state='processing'").get().c;
+    const completed = db.prepare("SELECT COUNT(*) AS c FROM jobs WHERE state='completed'").get().c;
+    const dead = db.prepare("SELECT COUNT(*) AS c FROM jobs WHERE state='dead'").get().c;
+
+    console.log('--- Queue Status ---');
+    console.log('Total jobs:', total);
+    console.log('Pending:', pending);
+    console.log('Processing:', processing);
+    console.log('Completed:', completed);
+    console.log('Dead:', dead);
+
+    if (fs.existsSync(PID_FILE)) {
+      const data = JSON.parse(fs.readFileSync(PID_FILE, 'utf8'));
+      console.log('\n--- Worker Status ---');
+      console.log('Worker count:', data.pids?.length || 0);
+      console.log('PIDs:', data.pids?.join(', ') || 'none');
+    } else {
+      console.log('\nNo workers currently running.');
+    }
+
+    db.close();
+  });
+
+program
 .command('config')
 .description('Get/set config')
 .argument('<action>')
