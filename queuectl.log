@@ -3,3 +3,14 @@
 [2025-11-10T07:29:43.090Z] completed a4b146be-575e-4582-892a-84e59817c51f
 [2025-11-10T07:30:07.471Z] worker SIGINT
 [2025-11-10T07:30:07.654Z] worker shutting down gracefully
+[2025-11-10T07:38:05.560Z] worker starting
+[2025-11-10T07:38:05.575Z] processing 9ede6434-f096-47fa-8a33-b28d2560a752 echo hello
+[2025-11-10T07:38:05.638Z] completed 9ede6434-f096-47fa-8a33-b28d2560a752
+[2025-11-10T07:40:52.614Z] worker SIGINT
+[2025-11-10T07:40:52.755Z] worker shutting down gracefully
+[2025-11-10T07:41:03.218Z] worker starting
+[2025-11-10T07:41:05.293Z] no more jobs — exiting
+[2025-11-10T07:41:20.281Z] worker starting
+[2025-11-10T07:41:20.298Z] processing 7e286cf1-7ff6-44c8-9541-0b48a3c8ea68 echo sleep
+[2025-11-10T07:41:20.373Z] completed 7e286cf1-7ff6-44c8-9541-0b48a3c8ea68
+[2025-11-10T07:41:22.430Z] no more jobs — exiting

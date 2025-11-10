@@ -113,6 +113,7 @@ const db = openDB();
 const cfg = getConfig(db);
 log('worker starting');
 let shuttingDown = false;
+let idleCycles = 0;
 process.on('SIGTERM', ()=>{ log('worker SIGTERM'); shuttingDown=true; });
 process.on('SIGINT', ()=>{ log('worker SIGINT'); shuttingDown=true; });
 
@@ -138,11 +139,16 @@ log('claim error',err.message);
 
 
 if(!job){
-// sleep a bit
-await new Promise(r=>setTimeout(r,200));
-continue;
+idleCycles++;
+      if (idleCycles > 10) {  // ~2 seconds of no jobs (10 * 200ms)
+        log('no more jobs — exiting');
+        break;
+      }
+      await new Promise(r => setTimeout(r, 200));
+      continue;
 }
 
+idleCycles=0;
 
 log('processing', job.id, job.command);
 const code = await execCommand(job.command);
