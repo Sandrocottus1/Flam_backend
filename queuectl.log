@@ -59,3 +59,69 @@
 [2025-11-10T09:00:31.434Z] processing 671209ad-8049-436e-a5d7-a630092a0ad3 exit 1
 [2025-11-10T09:00:31.491Z] moved to DLQ 671209ad-8049-436e-a5d7-a630092a0ad3
 [2025-11-10T09:00:33.627Z] no more jobs — exiting
+[2025-11-10T09:05:57.817Z] worker starting
+[2025-11-10T09:05:57.826Z] processing d678640c-1c27-42ec-baef-decb0062b6e0 echo success
+[2025-11-10T09:05:57.870Z] completed d678640c-1c27-42ec-baef-decb0062b6e0
+[2025-11-10T09:05:57.871Z] processing 5ce712b0-ab64-489e-851c-e7d95beb6e68 exit 1
+[2025-11-10T09:05:57.905Z] moved to DLQ 5ce712b0-ab64-489e-851c-e7d95beb6e68
+[2025-11-10T09:06:00.105Z] no more jobs — exiting
+[2025-11-10T09:06:45.114Z] worker starting
+[2025-11-10T09:06:45.127Z] processing 3ced845b-e4f3-4340-b8e7-c6eb7d9c5a81 echo success
+[2025-11-10T09:06:45.172Z] completed 3ced845b-e4f3-4340-b8e7-c6eb7d9c5a81
+[2025-11-10T09:06:45.175Z] processing 7c5a8d39-93df-4cf2-9500-8652583579e9 exit 1
+[2025-11-10T09:06:45.235Z] moved to DLQ 7c5a8d39-93df-4cf2-9500-8652583579e9
+[2025-11-10T09:06:47.294Z] no more jobs — exiting
+[2025-11-10T09:13:58.452Z] worker starting
+[2025-11-10T09:13:58.458Z] claim error no such column: priority
+[2025-11-10T09:13:58.668Z] claim error no such column: priority
+[2025-11-10T09:13:58.874Z] claim error no such column: priority
+[2025-11-10T09:13:59.078Z] claim error no such column: priority
+[2025-11-10T09:13:59.283Z] claim error no such column: priority
+[2025-11-10T09:13:59.488Z] claim error no such column: priority
+[2025-11-10T09:13:59.695Z] claim error no such column: priority
+[2025-11-10T09:13:59.914Z] claim error no such column: priority
+[2025-11-10T09:14:00.120Z] claim error no such column: priority
+[2025-11-10T09:14:00.328Z] claim error no such column: priority
+[2025-11-10T09:14:00.548Z] claim error no such column: priority
+[2025-11-10T09:14:00.551Z] no more jobs — exiting
+[2025-11-10T09:16:51.822Z] worker starting
+[2025-11-10T09:16:51.833Z] claim error no such column: priority
+[2025-11-10T09:16:52.042Z] claim error no such column: priority
+[2025-11-10T09:16:52.249Z] claim error no such column: priority
+[2025-11-10T09:16:52.486Z] claim error no such column: priority
+[2025-11-10T09:16:52.704Z] claim error no such column: priority
+[2025-11-10T09:16:52.909Z] claim error no such column: priority
+[2025-11-10T09:16:53.150Z] claim error no such column: priority
+[2025-11-10T09:16:53.383Z] claim error no such column: priority
+[2025-11-10T09:16:53.588Z] claim error no such column: priority
+[2025-11-10T09:16:53.794Z] claim error no such column: priority
+[2025-11-10T09:16:54.016Z] claim error no such column: priority
+[2025-11-10T09:16:54.026Z] no more jobs — exiting
+[2025-11-10T09:21:45.699Z] started worker pid=20644
+[2025-11-10T09:21:45.718Z] started worker pid=10340
+[2025-11-10T09:21:46.120Z] worker starting
+[2025-11-10T09:21:46.125Z] claim error no such column: priority
+[2025-11-10T09:21:46.146Z] worker starting
+[2025-11-10T09:21:46.151Z] claim error no such column: priority
+[2025-11-10T09:21:46.346Z] claim error no such column: priority
+[2025-11-10T09:21:46.359Z] claim error no such column: priority
+[2025-11-10T09:21:46.562Z] claim error no such column: priority
+[2025-11-10T09:21:46.562Z] claim error no such column: priority
+[2025-11-10T09:21:46.768Z] claim error no such column: priority
+[2025-11-10T09:21:46.770Z] claim error no such column: priority
+[2025-11-10T09:21:46.974Z] claim error no such column: priority
+[2025-11-10T09:21:46.973Z] claim error no such column: priority
+[2025-11-10T09:21:47.185Z] claim error no such column: priority
+[2025-11-10T09:21:47.185Z] claim error no such column: priority
+[2025-11-10T09:21:47.413Z] claim error no such column: priority
+[2025-11-10T09:21:47.413Z] claim error no such column: priority
+[2025-11-10T09:21:47.636Z] claim error no such column: priority
+[2025-11-10T09:21:47.634Z] claim error no such column: priority
+[2025-11-10T09:21:47.856Z] claim error no such column: priority
+[2025-11-10T09:21:47.855Z] claim error no such column: priority
+[2025-11-10T09:21:48.074Z] claim error no such column: priority
+[2025-11-10T09:21:48.074Z] claim error no such column: priority
+[2025-11-10T09:21:48.280Z] claim error no such column: priority
+[2025-11-10T09:21:48.279Z] claim error no such column: priority
+[2025-11-10T09:21:48.281Z] no more jobs — exiting
+[2025-11-10T09:21:48.283Z] no more jobs — exiting

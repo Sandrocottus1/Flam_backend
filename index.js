@@ -62,30 +62,7 @@ INSERT OR IGNORE INTO config(key,value) VALUES ('default_max_retries','3');
 return db;
 }
 
-function getPendingJob(db) {
-  const now = Date.now();
-  const select = db.prepare(`
-    SELECT id, command, attempts, max_retries 
-    FROM jobs 
-    WHERE state='pending' AND next_run <= ? 
-    ORDER BY created_at 
-    LIMIT 1
-  `);
-  const row = select.get(now);
-  if (!row) return null;
 
-  const tx = db.transaction((id) => {
-    const r = db.prepare('SELECT state FROM jobs WHERE id=?').get(id);
-    if (!r || r.state !== 'pending') return false;
-    db.prepare('UPDATE jobs SET state=?, updated_at=? WHERE id=?')
-      .run('processing', new Date().toISOString(), id);
-    return true;
-  });
-  const ok = tx(row.id);
-  if (!ok) return null;
-
-  return db.prepare('SELECT * FROM jobs WHERE id=?').get(row.id);
-}
 
 function getConfig(db) {
   const rows = db.prepare('SELECT key, value FROM config').all();
@@ -100,17 +77,37 @@ function getConfig(db) {
 
 
 // Execute command and return exit code via promise
-function execCommand(command){
-return new Promise((resolve)=>{
-const child = spawn(command, { shell: true, stdio: 'inherit' });
-child.on('close', (code) => {
-resolve(code);
-});
-child.on('error',(err)=>{
-resolve(127);
-});
-});
+function execCommand(command, timeout = 0) {
+  return new Promise((resolve) => {
+    const child = spawn(command, { shell: true });
+    let output = '';
+    let timer;
+
+    child.stdout.on('data', (data) => { output += data.toString(); });
+    child.stderr.on('data', (data) => { output += data.toString(); });
+
+    if (timeout > 0) {
+      timer = setTimeout(() => {
+        child.kill();
+        resolve({ code: 124, output });
+      }, timeout);
+    }
+
+    const start = Date.now();
+    child.on('close', (code) => {
+      if (timer) clearTimeout(timer);
+      const duration = Date.now() - start;
+      resolve({ code, output, duration });
+    });
+
+    child.on('error', (err) => {
+      if (timer) clearTimeout(timer);
+      resolve({ code: 127, output: err.message, duration: 0 });
+    });
+  });
 }
+
+
 
 // Worker loop (single worker process)
 async function workerLoop(){
@@ -130,7 +127,11 @@ try{
 const tx = db.transaction(()=>{
 const now = Date.now();
 // select id where pending and next_run <= now
-const row = db.prepare(`SELECT id FROM jobs WHERE state='pending' AND next_run<=? ORDER BY created_at LIMIT 1`).get(now);
+const row = db.prepare(`SELECT id 
+  FROM jobs 
+  WHERE state='pending' AND next_run<=? 
+  ORDER BY priority ASC, created_at ASC 
+  LIMIT 1`).get(now);
 if(!row) return null;
 // try to claim
 const ok = db.prepare(`UPDATE jobs SET state='processing', updated_at=? WHERE id=? AND state='pending'`).run(new Date().toISOString(), row.id);
@@ -156,17 +157,20 @@ idleCycles++;
 idleCycles=0;
 
 log('processing', job.id, job.command);
-const code = await execCommand(job.command);
+const { code, output, duration } = await execCommand(job.command);
+
 const now = new Date().toISOString();
 if(code===0){
-db.prepare('UPDATE jobs SET state=?, updated_at=? WHERE id=?').run('completed', now, job.id);
-log('completed',job.id);
+db.prepare('UPDATE jobs SET state=?, updated_at=?, duration=?, output=? WHERE id=?')
+    .run('completed', now, duration, output, job.id);
+  log('completed', job.id, `duration=${duration}ms`);
 } else {
 // failure: increment attempts
 const attempts = job.attempts + 1;
 const max_retries = job.max_retries;
 if(attempts>max_retries){
-db.prepare('UPDATE jobs SET state=?, attempts=?, updated_at=?, last_error=? WHERE id=?').run('dead', attempts, now, `exit(${code})`, job.id);
+db.prepare('UPDATE jobs SET attempts=?, state=?, next_run=?, updated_at=?, last_error=?, duration=?, output=? WHERE id=?')
+    .run(attempts, 'pending', nextRun, now, `exit(${code})`, duration, output, job.id);
 log('moved to DLQ', job.id);
 } else {
 // compute backoff delay = base ^ attempts seconds

@@ -24,6 +24,7 @@
   "dependencies": {
     "better-sqlite3": "^12.4.1",
     "commander": "^14.0.2",
+    "express": "^5.1.0",
     "uuid": "^13.0.0"
   }
 }
