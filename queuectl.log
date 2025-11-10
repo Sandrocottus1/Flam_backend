@@ -1,0 +1,5 @@
+[2025-11-10T07:29:43.024Z] worker starting
+[2025-11-10T07:29:43.046Z] processing a4b146be-575e-4582-892a-84e59817c51f echo hello
+[2025-11-10T07:29:43.090Z] completed a4b146be-575e-4582-892a-84e59817c51f
+[2025-11-10T07:30:07.471Z] worker SIGINT
+[2025-11-10T07:30:07.654Z] worker shutting down gracefully

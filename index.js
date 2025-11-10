@@ -1,12 +1,17 @@
-const fs=require('fs');
-const path=require('path');
-const { spawn }=require('path');
-const { program }=require('better-sqlite3');
-const { v4: uuidv4 }=require('uuid'); 
+
+import fs from 'fs';
+import path from 'path';
+import { spawn } from 'child_process';
+import Database from 'better-sqlite3';
+import { v4 as uuidv4 } from 'uuid';
+import { Command } from 'commander';
+
+const program = new Command();
 
 const DB_PATH = path.resolve(process.cwd(), 'queue.db');
 const PID_FILE = path.resolve(process.cwd(), 'queuectl.pids.json');
 const LOG_FILE = path.resolve(process.cwd(), 'queuectl.log');
+
 
 
 function log(...args){
@@ -52,26 +57,40 @@ INSERT OR IGNORE INTO config(key,value) VALUES ('default_max_retries','3');
 return db;
 }
 
-function getConfig(db){
-const now = Date.now();
-// pick pending job with next_run <= now
-const select = db.prepare(`SELECT id,command,attempts,max_retries FROM jobs WHERE state='pending' AND next_run<=? ORDER BY created_at LIMIT 1`);
-const row = select.get(now);
-if(!row) return null;
-// try to atomically set it to processing only if still pending
-const upd = db.prepare(`UPDATE jobs SET state='processing', updated_at=?, updated_at=updated_at WHERE id=? AND state='pending'`);
-// Note: better-sqlite3 supports transaction
-const tx = db.transaction((id)=>{
-const r = db.prepare('SELECT state FROM jobs WHERE id=?').get(id);
-if(!r || r.state!=='pending') return false;
-db.prepare('UPDATE jobs SET state=? , updated_at=? WHERE id=?').run('processing', new Date().toISOString(), id);
-return true;
-});
-const ok = tx(row.id);
-if(!ok) return null;
-// fetch updated row
-const job = db.prepare('SELECT * FROM jobs WHERE id=?').get(row.id);
-return job;
+function getPendingJob(db) {
+  const now = Date.now();
+  const select = db.prepare(`
+    SELECT id, command, attempts, max_retries 
+    FROM jobs 
+    WHERE state='pending' AND next_run <= ? 
+    ORDER BY created_at 
+    LIMIT 1
+  `);
+  const row = select.get(now);
+  if (!row) return null;
+
+  const tx = db.transaction((id) => {
+    const r = db.prepare('SELECT state FROM jobs WHERE id=?').get(id);
+    if (!r || r.state !== 'pending') return false;
+    db.prepare('UPDATE jobs SET state=?, updated_at=? WHERE id=?')
+      .run('processing', new Date().toISOString(), id);
+    return true;
+  });
+  const ok = tx(row.id);
+  if (!ok) return null;
+
+  return db.prepare('SELECT * FROM jobs WHERE id=?').get(row.id);
+}
+
+function getConfig(db) {
+  const rows = db.prepare('SELECT key, value FROM config').all();
+  const cfg = {};
+  for (const row of rows) {
+    const val = Number(row.value);
+    cfg[row.key] = isNaN(val) ? row.value : val;
+  }
+  return cfg;
+
 }
 
 
@@ -172,7 +191,8 @@ program
         const command=job.command;
         if(!command){console.error('command required'); process.exit(1);}
         const now =new Date().toISOString();
-        const max_retires=(job.max_retires!==undefined)?job.max_retires:cfg.default_max_retires;
+        const max_retries = (job.max_retries !== undefined) ? job.max_retries : Number(cfg.default_max_retries || 3);
+
         const next_run=Date.now();
 
         db.prepare(`INSERT INTO jobs(id,command,state,attempts,max_retries,created_at,updated_at,next_run) VALUES(?,?,?,?,?,?,?,?)`).run(id,command,'pending',0,max_retries,now,now,next_run);
