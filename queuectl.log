@@ -32,3 +32,16 @@
 [2025-11-10T08:20:38.194Z] no more jobs — exiting
 [2025-11-10T08:20:38.209Z] no more jobs — exiting
 [2025-11-10T08:20:38.255Z] no more jobs — exiting
+[2025-11-10T08:34:46.044Z] started worker pid=16720
+[2025-11-10T08:34:46.068Z] started worker pid=21428
+[2025-11-10T08:34:46.084Z] started worker pid=17068
+[2025-11-10T08:34:46.483Z] worker starting
+[2025-11-10T08:34:46.498Z] processing 3a6b87ed-e22a-4cf7-8b7b-7d6cd8ffa62e echo Hello
+[2025-11-10T08:34:46.525Z] worker starting
+[2025-11-10T08:34:46.568Z] completed 3a6b87ed-e22a-4cf7-8b7b-7d6cd8ffa62e
+[2025-11-10T08:34:46.607Z] worker starting
+[2025-11-10T08:34:48.607Z] no more jobs — exiting
+[2025-11-10T08:34:48.661Z] no more jobs — exiting
+[2025-11-10T08:34:48.701Z] no more jobs — exiting
+[2025-11-10T08:38:05.249Z] worker starting
+[2025-11-10T08:38:07.786Z] no more jobs — exiting

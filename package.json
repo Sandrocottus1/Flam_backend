@@ -1,14 +1,25 @@
 {
   "name": "flam_backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Lightweight background job queue CLI (Node.js + SQLite)",
   "main": "index.js",
   "type": "module",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "bin": {
+    "queuectl": "./index.js"
   },
-  "keywords": [],
-  "author": "",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node testQueue.js"
+  },
+  "keywords": [
+    "job-queue",
+    "cli",
+    "worker",
+    "sqlite",
+    "background-tasks",
+    "nodejs"
+  ],
+  "author": "Aryan Yadav",
   "license": "ISC",
   "dependencies": {
     "better-sqlite3": "^12.4.1",

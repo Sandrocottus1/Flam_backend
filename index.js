@@ -9,6 +9,8 @@ import { Command } from 'commander';
 
 const program = new Command();
 
+
+
 const DB_PATH = path.resolve(process.cwd(), 'queue.db');
 const PID_FILE = path.resolve(process.cwd(), 'queuectl.pids.json');
 const LOG_FILE = path.resolve(process.cwd(), 'queuectl.log');
@@ -208,41 +210,75 @@ program
         console.log('enqueued',id);
         db.close();
     })
-
 program
-    .command('worker')
-    .description('Worker management')
-    .argument('<action>')
-    .option('--count <n>','number of workers', '1')
-    .action((action,opts)=>{
-    if(action==='start'){
-        const count = Number(opts.count||1);
-        const pids = [];
-        for(let i=0;i<count;i++){
-            const child = spawn(process.execPath, [__filename, 'worker', 'run'], { stdio: 'inherit' });
-            pids.push(child.pid);
-            console.log('worker started pid=',child.pid);
-            log('started worker pid='+child.pid);
+  .command('worker')
+  .description('Worker management')
+  .argument('<action>')
+  .option('--count <n>', 'number of workers', '1')
+  .action((action, opts) => {
+    if (action === 'start') {
+      const count = Number(opts.count || 1);
+      const pids = [];
+      for (let i = 0; i < count; i++) {
+        const child = spawn(process.execPath, [__filename, 'worker', 'run'], {
+          stdio: 'inherit',
+        });
+        pids.push(child.pid);
+        console.log('worker started pid =', child.pid);
+        log('started worker pid=' + child.pid);
+      }
+      // persist pids
+      fs.writeFileSync(PID_FILE, JSON.stringify({ pids, started_at: Date.now() }));
+    }
+
+    else if (action === 'stop') {
+      if (!fs.existsSync(PID_FILE)) {
+        console.log('No PID file found.');
+        return;
+      }
+
+      const data = JSON.parse(fs.readFileSync(PID_FILE, 'utf8'));
+      if (!data.pids || !data.pids.length) {
+        console.log('No worker PIDs found.');
+        return;
+      }
+
+      for (const pid of data.pids) {
+        try {
+          // check if process exists before killing
+          process.kill(pid, 0);
+          process.kill(pid, 'SIGTERM');
+          console.log(`Sent SIGTERM to worker ${pid}`);
+        } catch (err) {
+          if (err.code === 'ESRCH') {
+            console.warn(`Worker ${pid} already stopped (no such process)`);
+          } else {
+            console.error(`Failed to kill ${pid}: ${err.message}`);
+          }
         }
-    // persist pids
-    fs.writeFileSync(PID_FILE, JSON.stringify({pids, started_at: Date.now()}));
-    } else if(action==='stop'){
-    if(!fs.existsSync(PID_FILE)){ console.log('no pid file'); return; }
-    const data = JSON.parse(fs.readFileSync(PID_FILE,'utf8'));
-    if(!data.pids) { console.log('no pids'); return; }
-    for(const pid of data.pids){
-    try{
-    process.kill(pid,'SIGTERM');
-    console.log('sent SIGTERM to',pid);
-    }catch(e){ console.log('failed to kill',pid,e.message); }
+      }
+
+      // remove PID file after attempting to stop all workers
+      try {
+        fs.unlinkSync(PID_FILE);
+        console.log('PID file removed.');
+      } catch (e) {
+        console.warn('Could not remove PID file:', e.message);
+      }
     }
-    fs.unlinkSync(PID_FILE);
-    } else if(action==='run'){
-    workerLoop().catch(e=>{ log('worker error',e.message); process.exit(1); });
-    } else {
-    console.log('unknown worker action');
+
+    else if (action === 'run') {
+      workerLoop().catch((e) => {
+        log('worker error', e.message);
+        process.exit(1);
+      });
     }
-    });
+
+    else {
+      console.log('Unknown worker action. Use start|stop|run');
+    }
+  });
+
 
 program
     .command('dlq')
@@ -315,6 +351,28 @@ console.log('unknown config action');
 }
 db.close();
 });
+
+program
+  .command('list')
+  .option('--state <state>', 'filter by state (pending, processing, completed, dead)', 'pending')
+  .description('List jobs by state')
+  .action((opts) => {
+    const db = openDB();
+    const rows = db
+      .prepare('SELECT * FROM jobs WHERE state=? ORDER BY created_at DESC')
+      .all(opts.state);
+
+    if (rows.length === 0) {
+      console.log(`No jobs found with state='${opts.state}'`);
+    } else {
+      for (const r of rows) {
+        console.log(
+          `${r.id} | ${r.command} | attempts=${r.attempts} | state=${r.state} | updated_at=${r.updated_at}`
+        );
+      }
+    }
+    db.close();
+  });
 
 
 program.parse(process.argv);
