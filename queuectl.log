@@ -45,3 +45,17 @@
 [2025-11-10T08:34:48.701Z] no more jobs — exiting
 [2025-11-10T08:38:05.249Z] worker starting
 [2025-11-10T08:38:07.786Z] no more jobs — exiting
+[2025-11-10T08:53:21.571Z] worker starting
+[2025-11-10T08:53:21.582Z] processing 8e2c56dd-ce8c-4a8e-98a0-9995a88bdcd5 echo success
+[2025-11-10T08:53:21.630Z] completed 8e2c56dd-ce8c-4a8e-98a0-9995a88bdcd5
+[2025-11-10T08:53:21.632Z] processing 472afaa3-8c27-4be3-a9f2-74ec49620572 exit 1
+[2025-11-10T08:53:21.695Z] retry scheduled 472afaa3-8c27-4be3-a9f2-74ec49620572 in 2 s
+[2025-11-10T08:53:23.752Z] processing 472afaa3-8c27-4be3-a9f2-74ec49620572 exit 1
+[2025-11-10T08:53:23.796Z] retry scheduled 472afaa3-8c27-4be3-a9f2-74ec49620572 in 4 s
+[2025-11-10T08:53:25.852Z] no more jobs — exiting
+[2025-11-10T09:00:31.368Z] worker starting
+[2025-11-10T09:00:31.378Z] processing 8f84c19a-6bdb-487d-80a6-52afc4ad6516 echo success
+[2025-11-10T09:00:31.432Z] completed 8f84c19a-6bdb-487d-80a6-52afc4ad6516
+[2025-11-10T09:00:31.434Z] processing 671209ad-8049-436e-a5d7-a630092a0ad3 exit 1
+[2025-11-10T09:00:31.491Z] moved to DLQ 671209ad-8049-436e-a5d7-a630092a0ad3
+[2025-11-10T09:00:33.627Z] no more jobs — exiting
